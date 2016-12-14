@@ -9,8 +9,9 @@ defmodule P14 do
       base
       |> Stream.filter(fn {_index, hash} -> penta?(hash) end)
       |> Stream.map(fn {index, hash} -> {index, penta_char(hash)} end)
-      |> Stream.take(64)
+      |> Stream.take(15)
       |> MapSet.new()
+    IO.puts "done validating"
     base
     |> Stream.map(fn {index, hash} -> {index, triple_char(hash)} end)
     |> Stream.filter(fn {index, triple} ->
@@ -23,10 +24,16 @@ defmodule P14 do
     |> Enum.take(-1)
   end
   def map_hash({index, str}) do
+    if rem(index, 1000) == 0 do
+      IO.puts "passed " <> to_string(index)
+    end
     hash =
-      str
-      |> :crypto.md5()
-      |> Base.encode16(case: :lower)
+      Stream.iterate(str, fn n_str ->
+        n_str
+        |> :crypto.md5()
+        |> Base.encode16(case: :lower)
+      end)
+      |> Enum.at(2017)
     {index, hash}
   end
   def triple?(<<_, _>>), do: false
